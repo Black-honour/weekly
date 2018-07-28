@@ -9,7 +9,7 @@
     <title>登陆<%=person%>本周的工作记录</title>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">    
+<meta http-equiv="expires" content="0">   
 
 <style>
         h2 {text-align:center;}
@@ -50,37 +50,13 @@ boolean sameweek(java.util.Date date1,java.util.Date date2){
 %>
 
 <%//定义参数
-String finished0;
-String finished1;
-String finished2;
-String finished3;
-String finished4;
-String thisTask0;
-String thisTask1;
-String thisTask2;
-String thisTask3;
-String thisTask4;
-String thisDate0;
-String thisDate1;
-String thisDate2;
-String thisDate3;
-String thisDate4;
-String prevTask0;
-String prevTask1;
-String prevTask2;
-String prevTask3;
-String prevTask4;
-String prevDate0;
-String prevDate1;
-String prevDate2;
-String prevDate3;
-String prevDate4;
-String summary;
+String summary=" ";
 String finished[]=new String[5];
 String thisTask[]=new String[5];
 String thisDate[]=new String[5];
 String prevTask[]=new String[5];
 String prevDate[]=new String[5];
+int i;
 //连接mysql数据库
 Class.forName("com.mysql.cj.jdbc.Driver");
 String url="jdbc:mysql://localhost:3306/WeeklyReport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
@@ -98,43 +74,48 @@ while(rs.next()){
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	java.util.Date LastentryDate=sdf.parse(LastEntryDate);
 	if(sameweek(new java.util.Date(),LastentryDate)){
-		finished0=rs.getString(7);
-		finished1=rs.getString(8);
-		finished2=rs.getString(9);
-		finished3=rs.getString(10);
-		finished4=rs.getString(11);
-		thisTask0=rs.getString(12);
-		thisTask1=rs.getString(13);
-		thisTask2=rs.getString(14);
-		thisTask3=rs.getString(15);
-		thisTask4=rs.getString(16);
-		thisDate0=rs.getString(17);
-		thisDate1=rs.getString(18);
-		thisDate2=rs.getString(19);
-		thisDate3=rs.getString(20);
-		thisDate4=rs.getString(21);
+		finished[0]=rs.getString(7);
+		finished[1]=rs.getString(8);
+		finished[2]=rs.getString(9);
+		finished[3]=rs.getString(10);
+		finished[4]=rs.getString(11);
+		thisTask[0]=rs.getString(12);
+		thisTask[1]=rs.getString(13);
+		thisTask[2]=rs.getString(14);
+		thisTask[3]=rs.getString(15);
+		thisTask[4]=rs.getString(16);
+		thisDate[0]=rs.getString(17);
+		thisDate[1]=rs.getString(18);
+		thisDate[2]=rs.getString(19);
+		thisDate[3]=rs.getString(20);
+		thisDate[4]=rs.getString(21);
 		summary=rs.getString(22);
 	}
 	else{
-		prevTask0=rs.getString(12);
-		prevTask1=rs.getString(13);
-		prevTask2=rs.getString(14);
-		prevTask3=rs.getString(15);
-		prevTask4=rs.getString(16);
-		prevDate0=rs.getString(17);
-		prevDate1=rs.getString(18);
-		prevDate2=rs.getString(19);
-		prevDate3=rs.getString(20);
-		prevDate4=rs.getString(21);
+		prevTask[0]=rs.getString(12);
+		prevTask[1]=rs.getString(13);
+		prevTask[2]=rs.getString(14);
+		prevTask[3]=rs.getString(15);
+		prevTask[4]=rs.getString(16);
+		prevDate[0]=rs.getString(17);
+		prevDate[1]=rs.getString(18);
+		prevDate[2]=rs.getString(19);
+		prevDate[3]=rs.getString(20);
+		prevDate[4]=rs.getString(21);
 	}
+	for(i=0;i<5;i++){
 %>
     <tr>
     <td><%=prevTask[i]%>&nbsp;</td>
-    <td><%=preDate[i]%>&nbsp;</td>
+    <td><%=prevDate[i]%>&nbsp;</td>
     <td><textarea name=<%=finished[i]%> cols=20 rows=3 wrap="hard"><%=finished[i]%></textarea></td>
     <td><textarea name=<%=thisTask[i]%> cols=20 rows=3 wrap="hard"><%=thisTask[i]%></textarea></td>
     <td><textarea name=<%=thisDate[i]%> cols=20 rows=3 wrap="hard"><%=thisDate[i]%></textarea></td>
-<%}%>
+    <%
+    if(i==0){%>
+    <td rowspan=5><textarea name="summary" cols=20 rows=18 wrap="hard"><%=summary %></textarea>
+	
+<%}}}%>
 
 </table>
 <h3><font color="green"><%=person %></font>的密码: <input type=password size=10 name=password>
@@ -146,7 +127,7 @@ while(rs.next()){
 </form>
 
 <hr>
-<div class=div1>
+<div style="text-align:center">
 [<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
 [<a target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
 </div>
