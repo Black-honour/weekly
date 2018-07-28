@@ -25,7 +25,7 @@
 <div style="text-align:center">[<a href="listEachPerson.jsp?person='<%=person%>'"><%=person%>的所有登录资料</a>][<a href=index.asp>回到主选单</a>]</div>
 
 <form method=post action="register.jsp">
-<table border=1 align=center>
+<table style="text-align:center;margin:auto" border=1>
 <tr>
 <th align=center colspan=2>上周预定完成事项
 <th align=center rowspan=2>本周完成事项
