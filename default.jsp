@@ -22,7 +22,7 @@
 
 <%
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/WeeklyReport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
@@ -74,7 +74,7 @@ String name=res.getString(2);%>
 </ul>
 
 <hr>
-<div style=text-float:right>
+<div style=float:right>
 <p><font size=-1>By <a href="http://www.cs.nthu.edu.tw/~jang">Roger Jang</a></font></p></div>
 
 </body>

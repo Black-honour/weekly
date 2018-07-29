@@ -19,30 +19,25 @@
 		A:link {text-decoration: none}
 		A:hover {text-decoration: underline}
 	</style>
- <style type="text/css">
-            .div1{  width: 400px;
-             height: 20px;
-             margin:0 auto;}
-        </style>  
 </head>
 <body>
-<%  
+<% //连接数据库 
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
-String passwordDatabase="123456";
-Connection conn=DriverManager.getConnection(url,username,passwordDatabase);
-String SQL="select * from MIR where (active=yes and ChineseName='" +person+"' and Birthday='" +password;
+String passwordDataBase="123456";
+Connection conn=DriverManager.getConnection(url,username,passwordDataBase);
+
+String SQL="select * from MIR where (active='true' and ChineseName='" +person+"' and Birthday='" +password+"'";
 PreparedStatement pstmt=conn.prepareStatement(SQL);
 ResultSet rs=pstmt.executeQuery();
 if(rs.next()){
-}
-else{%>
+}else{%>
 	<p align=center>亲爱的 <font color="green"><%=person%></font>，您的认证资料错误，请回<a href="javascript:history.go(-1)">前页</a>修改。</p>
 <%}%>
 
 <%!
-boolean sameweek(java.util.Date date1,java.util.Date date2){
+public boolean sameweek(java.util.Date date1,java.util.Date date2){
 	long weekNum1,weekNum2;
 	int oneDayTime=1000*60*60*24;
 	weekNum1 =date1.getTime()/oneDayTime;  
@@ -75,57 +70,67 @@ if (rs.next()){	// 找到最後一笔资料
 
 <%
 Class.forName("com.mysql.cj.jdbc.Driver");
-String urlWork="jdbc:mysql://localhost:3306/work?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String urlWork="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String userName="root";
 String passwordWork="123456";
 Connection connWork=DriverManager.getConnection(urlWork,userName,passwordWork);
+
 String sql;
-if(insertNewData==1){
-	sql="insert into work (name, entryDate, entryTime, summary, ";
+java.util.Date date=new java.util.Date();
+long datetime=date.getTime();
+int t=(int)datetime;
+String time=Integer.toString(t);
+
+if(insertNewData==1){//增加新的数据
+	sql = "insert into work (name, entryDate, entryTime, summary, ";
 	sql = sql +"finished0, finished1, finished2, finished3, finished4, ";
 	sql = sql + "thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, ";
 	sql = sql +"thisDate0, thisDate1, thisDate2, thisDate3, thisDate4) values ('";
-	sql = sql + Request("person") + "', '";
+	sql = sql + person + "', '";
 	sql = sql +new java.util.Date().toString() + "', '";
 	sql = sql + time + "', '";
-	sql = sql + Request("summary") + "', '";
-	sql = sql + Request("finished0") + "', '" & Request("finished1")+ "', '" + Request("finished2") + "', '" + Request("finished3") + "', '" + Request("finished4") + "', '";
-	sql = sql + Request("thisTask0") + "', '" & Request("thisTask1") + "', '" +Request("thisTask2") + "', '" + Request("thisTask3") + "', '" + Request("thisTask4") + "', '";
-    sql = sql + Request("thisDate0") + "', '" & Request("thisDate1") + "', '" + Request("thisDate2") + "', '" + Request("thisDate3") + "', '" + Request("thisDate4") + "')";			
+	sql = sql + request.getParameter("summary") + "', '";
+	sql = sql + request.getParameter("finished[0]") + "', '" + request.getParameter("finished[1]") + "', '" + request.getParameter("finished[2]") + "', '" + request.getParameter("finished[3]") + "', '" + request.getParameter("finished[4]") + "', '";
+	sql = sql + request.getParameter("thisTask[0]") + "', '" + request.getParameter("thisTask[1]") + "', '" + request.getParameter("thisTask[2]") + "', '" + request.getParameter("thisTask[3]") + "', '" + request.getParameter("thisTask[4]") + "', '";
+    sql = sql + request.getParameter("thisDate[0]") + "', '" + request.getParameter("thisDate[1]") + "', '" + request.getParameter("thisDate[2]") + "', '" + request.getParameter("thisDate[3]") + "', '" + request.getParameter("thisDate[4]") + "')";			
 }
-else{
-	sql="update work set";
-	sql= sql + " finished0='" + Request.Form("finished0") + "',";
-	sql= sql + " finished1='" + Request.Form("finished1") + "',";
-	sql = sql + " finished2='" + Request.Form("finished2") + "',";
-	sql = sql + " finished3='" + Request.Form("finished3") + "',";
-	sql = sql + " finished4='" + Request.Form("finished4") + "',";
-	sql = sql + " thisTask0='" + Request.Form("thisTask0") + "',";
-	sql = sql + " thisTask1='" + Request.Form("thisTask1") + "',";
-	sql = sql + " thisTask2='" + Request.Form("thisTask2") + "',";
-	sql = sql + " thisTask3='" + Request.Form("thisTask3") + "',";
-	sql = sql + " thisTask4='" + Request.Form("thisTask4") + "',";
-	sql = sql + " thisDate0='" + Request.Form("thisDate0") + "',";
-	sql = sql + " thisDate1='" + Request.Form("thisDate1") + "',";
-	sql = sql + " thisDate2='" + Request.Form("thisDate2") + "',";
-	sql = sql + " thisDate3='" + Request.Form("thisDate3") + "',";
-	sql = sql + " thisDate4='" + Request.Form("thisDate4") + "',";
-	sql = sql + " summary='" + Request.Form("summary") + "',";
-	sql = sql + " entryDate='" + date + "',";
+else{//更新数据
+	sql = "update work set";
+	sql = sql + " finished0='" + request.getParameter("finished[0]") + "',";
+	sql = sql + " finished1='" + request.getParameter("finished[1]") + "',";
+	sql = sql + " finished2='" + request.getParameter("finished[2]") + "',";
+	sql = sql + " finished3='" + request.getParameter("finished[3]") + "',";
+	sql = sql + " finished4='" + request.getParameter("finished[4]") + "',";
+	sql = sql + " thisTask0='" + request.getParameter("thisTask[0]") + "',";
+	sql = sql + " thisTask1='" + request.getParameter("thisTask[1]") + "',";
+	sql = sql + " thisTask2='" + request.getParameter("thisTask[2]") + "',";
+	sql = sql + " thisTask3='" + request.getParameter("thisTask[3]") + "',";
+	sql = sql + " thisTask4='" + request.getParameter("thisTask[4]") + "',";
+	sql = sql + " thisDate0='" + request.getParameter("thisDate[0]") + "',";
+	sql = sql + " thisDate1='" + request.getParameter("thisDate[1]") + "',";
+	sql = sql + " thisDate2='" + request.getParameter("thisDate[2]") + "',";
+	sql = sql + " thisDate3='" + request.getParameter("thisDate[3]") + "',";
+	sql = sql + " thisDate4='" + request.getParameter("thisDate[4]") + "',";
+	sql = sql + " summary='" + request.getParameter("summary") + "',";
+	sql = sql + " entryDate='" + date.toString() + "',";
 	sql = sql + " entryTime='" + time + "'";
 	sql = sql + " where id=" + recordId;
 }
 PreparedStatement pstmtUpdate=connWork.prepareStatement(sql);
 
-String sqln = "select * from work where name='" + Request("person") + "' order by entryDate desc";
+String sqln = "select * from work where name='" + person + "' order by entryDate desc";
 PreparedStatement pstmtn=conn.prepareStatement(sqln);
 ResultSet rsn=pstmtn.executeQuery();
+
+String []ufinished=(String[])session.getAttribute("finishedKey");
+String []uthisDate=(String[])session.getAttribute("thisDateKey");
+String []uthisTask=(String[])session.getAttribute("thisTaskKey");
+
 %>
 <p align=center>
-亲爱的 <font color=green><%=RS("name")%></font>，您输入的资料如下。若有错误，可回<a href="javascript:history.go(-1)">前页</a>修改。
+亲爱的 <font color=green><%=person%></font>，您输入的资料如下。若有错误，可回<a href="javascript:history.go(-1)">前页</a>修改。</p>
 
-<p>
-<table align=center border=1>
+<table style="text-align:center;margin:auto" border=1>
 <tr>
 	<th align=center>上周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述
 	<th align=center>本周完成事项
@@ -133,16 +138,25 @@ ResultSet rsn=pstmtn.executeQuery();
 	<th align=center>综合说明
 	<th align=center>登录日期
 <tr>
-	<td valign=top><% PrintSession "prevDate", "prevTask" %> &nbsp; </td>
-	<td valign=top><% PrintField RS, "finished", 0 %> &nbsp;</td>
-	<td valign=top><% PrintDateTask RS, "thisDate", "thisTask" %> &nbsp; </td>
-	<td valign=top><%=RS("summary")%> &nbsp;</td>
-	<td><%=RS("entryDate")%><br><%=RS("entryTime")%> &nbsp; </td>
+	<td valign=top><ol>
+	<%for(int i=0;i<=4;i++){%>
+	<%="<li>【<font color='red'>" + uthisDate[i] + "</font>】" + uthisTask[i]%> 
+	<%}%></ol>&nbsp;</td>
+	<td valign=top><ol>
+	<%for(int i=0;i<=4;i++){%>
+	<%="<li>"+rsn.getString(6+i)+"</li>"%>
+	<%}%></ol>&nbsp;</td>
+	<td valign=top>
+	<%for(int i=0;i<=4;i++){%><ol>
+	<%="<li>【<font color='red'>" + rsn.getString(16+i) + "</font>】" + rsn.getString(11+i)%> 
+	<%}%></ol>&nbsp;</td>
+	<td valign=top><%=rsn.getString(22)%> &nbsp;</td>
+	<td><%=rsn.getString(4)%><br><%=rsn.getString(5)%> &nbsp; </td>
 </table>
 <hr>
 <div style="text-align:cernter">
-[<a style="display:block;text-align:center" target=_blank href="listEachWeek.asp?weekDiff=0">本周登录之全部资料</a>]
-[<a style="display:block;text-align:center" target=_blank href="listLastRecord.asp">每位同学的最後一笔资料</a>]
+[<a style="display:block;text-align:center" target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
+[<a style="display:block;text-align:center" target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
 </div>
 </body>
 </html>

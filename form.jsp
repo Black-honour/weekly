@@ -22,7 +22,7 @@
 <body>
 <h2>登陆<font color="green"><%=person%></font>本周的工作记录</h2>
 
-<div style="text-align:center">[<a href="listEachPerson.jsp?person='<%=person%>'"><%=person%>的所有登录资料</a>][<a href=index.asp>回到主选单</a>]</div>
+<div style="text-align:center">[<a href="listEachPerson.jsp?person='<%=person%>'"><%=person%>的所有登录资料</a>][<a href=default.jsp>回到主选单</a>]</div>
 
 <form method=post action="register.jsp">
 <table style="text-align:center;margin:auto" border=1>
@@ -56,10 +56,18 @@ String thisTask[]=new String[5];
 String thisDate[]=new String[5];
 String prevTask[]=new String[5];
 String prevDate[]=new String[5];
+
+String finishedKey=" ";
+String thisTaskKey=" ";
+String thisDateKey=" ";
+String prevTaskKey=" ";
+String prevDateKey=" ";
+String summaryKey=new String("summary");
+
 int i;
 //连接mysql数据库
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/WeeklyReport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
@@ -90,6 +98,12 @@ while(rs.next()){
 		thisDate[3]=rs.getString(20);
 		thisDate[4]=rs.getString(21);
 		summary=rs.getString(22);
+		
+		session.setAttribute(finishedKey,finished);
+		session.setAttribute(thisTaskKey,thisTask);
+		session.setAttribute(thisDateKey,thisDate);
+
+		session.setAttribute(summaryKey, summary);
 	}
 	else{
 		prevTask[0]=rs.getString(12);
@@ -102,6 +116,10 @@ while(rs.next()){
 		prevDate[2]=rs.getString(19);
 		prevDate[3]=rs.getString(20);
 		prevDate[4]=rs.getString(21);
+		
+		session.setAttribute(prevTaskKey,prevTask);
+		session.setAttribute(prevDateKey,prevTask);
+
 	}
 	for(i=0;i<5;i++){
 %>

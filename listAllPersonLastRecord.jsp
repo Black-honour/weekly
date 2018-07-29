@@ -1,8 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java"  pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="java.io.*,java.util.*" %>
 <%@ page import="javax.servlet.*,java.text.*" %>
-<%@ page import="org.apache.commons.lang3.time.DateUtils"%>
+
 <!DOCTYPE HTML >
 <html>
   <head>
@@ -16,12 +16,7 @@
 		td {font-family: "标楷体", "helvetica,arial", "Tahoma"}
 		A:link {text-decoration: none}
 		A:hover {text-decoration: underline}
-	</style>
- <style type="text/css">
-            .div1{  width: 300px;
-             height: 20px;
-             margin:0 auto;}
-        </style>    
+	</style>    
 </head>
 <body>
 
@@ -40,21 +35,26 @@ color[8] = "#e0e0f9";
 %>
 
 <p>
-<table border=1 align=center>
+<table border=1 style="text-align:center;margin:auto">
 <tr>
 <th align=center>姓名</th>
-<th align=center>本周完成事项
-<th align=center>下周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述
-<th align=center>综合说明
-<th align=center> 登录日期</tr>
+<th align=center>本周完成事项</th>
+<th align=center>下周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述</th>
+<th align=center>综合说明</th>
+<th align=center> 登录日期</th></tr>
 
-<%
+<%//连接数据库
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weekreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
-String sql="select name from stu";
+
+String []ufinished=(String[])session.getAttribute("finishedKey");
+String []uthisDate=(String[])session.getAttribute("thisDateKey");
+String []uthisTask=(String[])session.getAttribute("thisTaskKey");
+//定义sql语句并执行
+String sql="select chineseName from MIR where(active='true')order by chinesename";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
 String name;
@@ -67,13 +67,19 @@ while(rs.next()){
 	if(rs_new.next()){%>
 		<tr>
 		<td bgcolor=<%=color[j]%> align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
-		<td bgcolor=<%=color[j]%> valign=top><% PrintField RS, "finished", 0 %> &nbsp;</td>
-		<td bgcolor=<%=color[j]%> valign=top><% PrintDateTask RS, "thisDate", "thisTask" %> &nbsp; </td>
-		<td bgcolor=<%=color[j]%> valign=top><%=RS("summary")%> &nbsp;</td>
-		<td bgcolor=<%=color[j]%> valign=top><%=RS("entryDate")%><br><%=RS("entryTime")%> &nbsp;</td></tr>
+		<td bgcolor=<%=color[j]%> valign=top>
+		<%for(int i=0;i<=4;i++){%><ol>
+		<%="<li>"+rs_new.getString(6+i)+"</li>"%>
+		<%}%></ol>&nbsp;</td>
+		<td bgcolor=<%=color[j]%> valign=top>
+		<%for(int i=0;i<=4;i++){%><ol>
+	    <%="<li>【<font color='red'>" + rs_new.getString(16+i) + "</font>】" + rs_new.getString(11+i)%> 
+	    <%}%></ol>&nbsp; </td>
+		<td bgcolor=<%=color[j]%> valign=top><%=rs_new.getString(22)%> &nbsp;</td>
+		<td bgcolor=<%=color[j]%> valign=top><%=rs_new.getString(4)%><br><%=rs_new.getString(5)%> &nbsp;</td></tr>
 	<%}else{%>
 	<tr>
-		<td bgcolor=<%=color[j]%> align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=person%></a> </td>
+		<td bgcolor=<%=color[j]%> align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
 		<td bgcolor=gray valign=top>&nbsp;</td>
 		<td bgcolor=gray valign=top>&nbsp;</td>
 		<td bgcolor=gray valign=top>&nbsp;</td>

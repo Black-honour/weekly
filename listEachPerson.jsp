@@ -6,8 +6,8 @@
 <!DOCTYPE HTML >
 <html>
   <head>
-	<%String name=request.getParameter("name");%>
-	<title>实验室工作进度<%=name%>的全部登录资料</title>
+	<%String person=request.getParameter("person");%>
+	<title>实验室工作进度<%=person%>的全部登录资料</title>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">    
@@ -18,12 +18,6 @@
 		A:link {text-decoration: none}
 		A:hover {text-decoration: underline}
 	</style>
- <style type="text/css">
-            .div1{  width: 300px;
-             height: 20px;
-             margin:0 auto;}
-        </style>
-        
 </head>
 <body>
 
@@ -42,31 +36,43 @@ color[8] = "#e0e0f9";
 %>
 
 <p>
-<table border=1 align=center>
+<table border=1 style="text-align:center;margin:auto">
 <tr>
-<th align=center>姓名
-<th align=center>本周完成事项
-<th align=center>下周预定完成事项：<br>【<font color="red">预定完成日期</font>】工作描述
-<th align=center>综合说明
-<th align=center> 登录日期
+<th align=center>姓名</th>
+<th align=center>本周完成事项</th>
+<th align=center>下周预定完成事项：<br>【<font color="red">预定完成日期</font>】工作描述</th>
+<th align=center>综合说明</th>
+<th align=center> 登录日期</th>
 
 <%
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
-String sql="select * from work where name = '" +name+"' order by entryDate desc";
+String sql="select * from work where name = '" +person+"' order by entryDate desc";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
+int j=0;
+
+String []ufinished=(String[])session.getAttribute("finishedKey");
+String []uthisDate=(String[])session.getAttribute("thisDateKey");
+String []uthisTask=(String[])session.getAttribute("thisTaskKey");
+
 while(rs.next()){
 %>
 <tr>
-	<td bgcolor=<%=color(j)%> align=center><font color=green><b><%=person%></b></font> </td>
-	<td bgcolor=<%=color(j)%> valign=top><% PrintField RS, "finished", 0 %> &nbsp; </td>
-	<td bgcolor=<%=color(j)%> valign=top><% PrintDateTask RS, "thisDate", "thisTask" %> &nbsp; </td>
-	<td bgcolor=<%=color(j)%> valign=top><%=RS("summary")%> &nbsp;</td>
-	<td bgcolor=<%=color(j)%> valign=top><%=RS("entryDate")%><br><%=RS("entryTime")%> &nbsp; </td>
+	<td bgcolor=<%=color[j]%> align=center><font color=green><b><%=person%></b></font> </td>
+	<td bgcolor=<%=color[j]%> valign=top><ol>
+	<%for(int i=0;i<=4;i++){ %>
+    <%="<li>"+rs.getString(6+i)+"</li>"%>
+    <%}%></ol> &nbsp; </td>
+	<td bgcolor=<%=color[j]%> valign=top><ol>
+	<%for(int i=0;i<=4;i++){%>
+	<%="<li>【<font color='red'>" + rs.getString(16+i) + "</font>】" + rs.getString(11+i)%> 
+	<%}%></ol>&nbsp;</td>
+	<td bgcolor=<%=color[j]%> valign=top><%=rs.getString(22)%>&nbsp;</td>
+	<td bgcolor=<%=color[j]%> valign=top><%=rs.getString(4)%><br><%=rs.getString(5)%> &nbsp; </td>
 	<%}%></tr>
 	</table>
 	</body>
