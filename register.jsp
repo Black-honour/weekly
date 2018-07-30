@@ -5,12 +5,15 @@
 <!DOCTYPE HTML >
 <html>
   <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">   
+  <%request.setCharacterEncoding("UTF-8");%> 
   <% String person=request.getParameter("person"); %>
   <% String password=request.getParameter("password");%>
   <title><%=person%>工作进度登录表</title>
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">    
+    
 
 <style>
         h2 {text-align:center;}
@@ -21,6 +24,9 @@
 	</style>
 </head>
 <body>
+
+<h2><%=person%>工作进度登录表</h2><hr>
+
 <% //连接数据库 
 Class.forName("com.mysql.cj.jdbc.Driver");
 String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
@@ -28,7 +34,7 @@ String username="root";
 String passwordDataBase="123456";
 Connection conn=DriverManager.getConnection(url,username,passwordDataBase);
 
-String SQL="select * from MIR where (active='true' and ChineseName='" +person+"' and Birthday='" +password+"'";
+String SQL="select * from MIR where active = 'true' and ChineseName = '" +person+"' and Birthday= '" + password + "' ";
 PreparedStatement pstmt=conn.prepareStatement(SQL);
 ResultSet rs=pstmt.executeQuery();
 if(rs.next()){
@@ -57,11 +63,14 @@ int recordId=-1;
 String sql_new="select *from work where entryDate =(select max(entryDate) from work)and name='"+person+"'";
 PreparedStatement pstmt_new=conn.prepareStatement(sql_new);
 ResultSet rs_first=pstmt_new.executeQuery();
+java.util.Date dt =new java.util.Date();
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+String dateString=sdf.format(dt);
+java.util.Date newdate=sdf.parse(dateString);
 if (rs.next()){	// 找到最後一笔资料
-	String Lastentry=rs.getString(6);
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	String Lastentry=rs.getString(4);
 	java.util.Date LastentryDate=sdf.parse(Lastentry);
-	if(sameweek(new java.util.Date(), LastentryDate)){		//若和目前时间在同一个星期
+	if(sameweek(dt, LastentryDate)){		//若和目前时间在同一个星期
 		insertNewData=0;
 		recordId=rs.getInt(2);
 	}
@@ -118,7 +127,7 @@ else{//更新数据
 }
 PreparedStatement pstmtUpdate=connWork.prepareStatement(sql);
 
-String sqln = "select * from work where name='" + person + "' order by entryDate desc";
+String sqln = "select * from work where name = '" + person + "' order by entryDate desc";
 PreparedStatement pstmtn=conn.prepareStatement(sqln);
 ResultSet rsn=pstmtn.executeQuery();
 
@@ -138,25 +147,27 @@ String []uthisTask=(String[])session.getAttribute("thisTaskKey");
 	<th align=center>综合说明
 	<th align=center>登录日期
 <tr>
+<%while(rsn.next()){%>
 	<td valign=top><ol>
 	<%for(int i=0;i<=4;i++){%>
-	<%="<li>【<font color='red'>" + uthisDate[i] + "</font>】" + uthisTask[i]%> 
+	<%="<li>【<font color='red'>" + uthisDate[i] + "</font>】" + uthisTask[i] + "</li>"%> 
 	<%}%></ol>&nbsp;</td>
 	<td valign=top><ol>
 	<%for(int i=0;i<=4;i++){%>
-	<%="<li>"+rsn.getString(6+i)+"</li>"%>
+	<%="<li>"+rsn.getString(7+i)+"</li>"%>
 	<%}%></ol>&nbsp;</td>
-	<td valign=top>
-	<%for(int i=0;i<=4;i++){%><ol>
-	<%="<li>【<font color='red'>" + rsn.getString(16+i) + "</font>】" + rsn.getString(11+i)%> 
+	<td valign=top><ol>
+	<%for(int i=0;i<=4;i++){%>
+	<%="<li>【<font color='red'>" + rsn.getString(17+i) + "</font>】" + rsn.getString(12+i)%> 
 	<%}%></ol>&nbsp;</td>
 	<td valign=top><%=rsn.getString(22)%> &nbsp;</td>
-	<td><%=rsn.getString(4)%><br><%=rsn.getString(5)%> &nbsp; </td>
+	<td><%=rsn.getString(5)%><br><%=rsn.getString(6)%> &nbsp; </td>
+	<%}%>
 </table>
 <hr>
-<div style="text-align:cernter">
-[<a style="display:block;text-align:center" target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
-[<a style="display:block;text-align:center" target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
+<div style="text-align:center">
+[<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
+[<a target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
 </div>
 </body>
 </html>

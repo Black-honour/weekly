@@ -6,7 +6,9 @@
     <title>MTR实验室工作进度登录网页</title>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">    
+<meta http-equiv="expires" content="0">  
+<meta http-equiv="content-Type" content="text/html;charset=utf-8"> 
+ <%request.setCharacterEncoding("UTF-8");%>  
 
 <style>
         h2 {text-align:center;}
@@ -29,6 +31,7 @@ Connection conn=DriverManager.getConnection(url,username,password);
 String sql="select chineseName from MIR where active='true' order by chineseName";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
+//String name;
 %>
 
 <div style="text-align:center">
@@ -36,8 +39,8 @@ ResultSet rs=pstmt.executeQuery();
 <select name="person" onChange="this.form.submit()">
 <option>=== 请选您的姓名 ===
 <%while(rs.next()){
-String name =rs.getString(2);%>
-<option value="<%=name%>>"><%=name%></option>
+String name =rs.getString(1);%>
+<option value=<%=name%>><%=name%></option>
 <% }%>
 </select>
 </form>
@@ -51,16 +54,16 @@ String name =rs.getString(2);%>
 <h3><img src="redball.gif">资料列表</h3>
 <ul>
 <li>每周填写之资料：
-	<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周</a>、
-	<a target=_blank href="listEachWeek.jsp?weekDiff=-1">前一周</a>、
-	<a target=_blank href="listEachWeek.jsp?weekDiff=-2">前两周</a>、
-	<a target=_blank href="listEachWeek.jsp?weekDiff=-3">前三周</a>、
+	<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周</a>
+	<a target=_blank href="listEachWeek.jsp?weekDiff=-1">前一周</a>
+	<a target=_blank href="listEachWeek.jsp?weekDiff=-2">前两周</a>
+	<a target=_blank href="listEachWeek.jsp?weekDiff=-3">前三周</a>
 	<a target=_blank href="listEachWeek.jsp?weekDiff=-4">前四周</a>
 <li>每个人的历史资料：
 <%ResultSet res=pstmt.executeQuery();
 while(res.next()){
-String name=res.getString(2);%>
-<a target=_blank href="listEachPerson.jsp?person='<%=name%>'"><%=name%></a>
+String name=res.getString(1);%>
+<a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a>
 <%}%>
 <li><a target=_blank href="listAllPersonLastRecord.jsp">每个人的最後一笔资料</a>
 </ul>

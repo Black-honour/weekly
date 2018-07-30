@@ -5,15 +5,18 @@
 <!DOCTYPE HTML >
 <html>
   <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">   
+  <%request.setCharacterEncoding("UTF-8");%> 
+  
 	<%int weekDiff = Integer.parseInt(request.getParameter("weekDiff"));	//和目前日期差几周，-1 代表前一周，-2 代表前两周，等等
     if (weekDiff==0){%>
 	<title>MIR 实验室本周登录之工作进度></title>
     <%}else{%>
 	<title>MIR 实验室前<%=-weekDiff%> 周登录之工作进度</title>
     <%}%>
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">    
 
 <style>
         h2 {text-align:center;}
@@ -24,7 +27,14 @@
 </head>
 <body>
 
-<div style="text-align:cernter"><a href=default.jsp>回到主选单</a>]</div>
+<%if (weekDiff==0){%>
+<h2>MIR 实验室本周登录之工作进度></h2>
+<%}else{%>
+<h2>MIR 实验室前<%=-weekDiff%> 周登录之工作进度</h2>
+<%}%>
+<hr>
+
+<div style="text-align:center">[<a href=default.jsp>回到主选单</a>]</div>
 
 <% String color[]=new String[9];
 color[0] = "#ffffdd";
@@ -47,10 +57,11 @@ int oneDayTime=1000*60*60*24;
 long dtTime=dt.getTime();
 Calendar cal =Calendar.getInstance();
 cal.setTime(dt);
-cal.add(Calendar.DATE,(-7*weekDiff));//日期加减，负数代表减几天，正数为加
+cal.add(Calendar.DATE,(7*weekDiff));//日期加减，负数代表减几天，正数为加
 newdt=cal.getTime();
-int dtday=(int)dtTime/oneDayTime;
-int xingQiJi=(dtday+2)%7; //星期几，1=星期天，7=星期六
+long newdtTime=newdt.getTime();
+double newdtday=Math.ceil(newdtTime/oneDayTime);
+int xingQiJi=(int)((newdtday+6)%7); //星期几，1=星期天，7=星期六
 
 Calendar start =Calendar.getInstance();
 start.setTime(newdt);
@@ -59,9 +70,13 @@ end.setTime(newdt);
 
 start.add(Calendar.DATE,1-xingQiJi);//日期加减，负数代表减几天，正数为加
 startnewdt=start.getTime();
-cal.add(Calendar.DATE,7-xingQiJi);//日期加减，负数代表减几天，正数为加
+end.add(Calendar.DATE,7-xingQiJi);//日期加减，负数代表减几天，正数为加,between不包括右边界
 endnewdt=end.getTime();
 
+SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd");
+
+String startnewdtString=sdf.format(startnewdt);
+String endnewdtString=sdf.format(endnewdt);
 %>
 
 <p>
@@ -73,9 +88,9 @@ endnewdt=end.getTime();
 <th align=center>综合说明</th>
 <th align=center> 登录日期</th></tr>
 
-<%
+<%//连接数据库
 Class.forName("com.mysql.cj.jdbc.Driver");
-String url="jdbc:mysql://localhost:3306/weekreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
@@ -84,32 +99,32 @@ String []ufinished=(String[])session.getAttribute("finishedKey");
 String []uthisDate=(String[])session.getAttribute("thisDateKey");
 String []uthisTask=(String[])session.getAttribute("thisTaskKey");
 
-String sql="select chineseName from MIR where(active='true')order by chinesename";
+String sql="select chineseName from MIR where (active = 'true') order by chinesename";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
 String name;
 int j=0;
 while(rs.next()){
 	name=rs.getString(1);
-	String sql_new="select * from work where name = '" + name + "' and entryDate Between" + startnewdt + "and" + endnewdt ;
+	String sql_new="select * from work where name = '" + name  +"' and entryDate <= '" + endnewdtString + "' and entryDate >= '" + startnewdtString +"' ";
 	PreparedStatement pstmt_new=conn.prepareStatement(sql_new);
-    ResultSet rs_new=pstmt.executeQuery();
+    ResultSet rs_new=pstmt_new.executeQuery();
 	if(rs_new.next()){%>
 		<tr>
-		<td bgcolor='<%=color[j]%>' align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
-		<td bgcolor='<%=color[j]%>' valign=top><ol>
+		<td bgcolor=<%=color[j]%> align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
+		<td bgcolor=<%=color[j]%> valign=top><ol>
 		<%for(int i=0;i<=4;i++){%>
-		<%="<li>"+rs_new.getString(6+i)+"</li>"%>
+		<%="<li>"+rs_new.getString(7+i)+"</li>"%>
 		<%}%></ol>&nbsp;</td>
-		<td bgcolor='<%=color[j]%>' valign=top><ol>
+		<td bgcolor=<%=color[j]%> valign=top><ol>
 	    <%for(int i=0;i<=4;i++){%>
-	    <%="<li>【<font color='red'>" + rs_new.getString(16+i) + "</font>】" + rs_new.getString(11+i)%> 
+	    <%="<li>【<font color='red'>" + rs_new.getString(17+i) + "</font>】" + rs_new.getString(12+i)%> 
 	    <%}%></ol> &nbsp; </td>
-		<td bgcolor='<%=color[j]%>' valign=top><%=rs_new.getString(22)%> &nbsp;</td>
-		<td bgcolor='<%=color[j]%>' valign=top><%=rs_new.getString(4)%><br><%=rs_new.getString(5)%>&nbsp;</td></tr>	
+		<td bgcolor=<%=color[j]%> valign=top><%=rs_new.getString(22)%> &nbsp;</td>
+		<td bgcolor=<%=color[j]%> valign=top><%=rs_new.getString(5)%><br><%=rs_new.getString(6)%>&nbsp;</td></tr>	
 	<%}else{%>
-	<tr>
-		<td bgcolor='<%=color[j]%>' align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
+	    <tr>
+		<td bgcolor=<%=color[j]%> align=center><a target=_blank href="listEachPerson.jsp?person=<%=name%>"><%=name%></a> </td>
 		<td bgcolor=gray valign=top>&nbsp;</td>
 		<td bgcolor=gray valign=top>&nbsp;</td>
 		<td bgcolor=gray valign=top>&nbsp;</td>

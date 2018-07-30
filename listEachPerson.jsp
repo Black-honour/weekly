@@ -6,11 +6,13 @@
 <!DOCTYPE HTML >
 <html>
   <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">   
+  <%request.setCharacterEncoding("UTF-8");%> 
 	<%String person=request.getParameter("person");%>
-	<title>实验室工作进度<%=person%>的全部登录资料</title>
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">    
+	<title>实验室工作进度<%=person%>的全部登录资料</title> 
 
 <style>
         h2 {text-align:center;}
@@ -21,7 +23,10 @@
 </head>
 <body>
 
-<div style="text-align:cernter"><a href=default.jsp>回到主选单</a>]</div>
+<h2>实验室工作进度:<%=person%>的全部登录资料</h2>
+<hr>
+
+<div style="text-align:center">[<a href=default.jsp>回到主选单</a>]</div>
 
 <% String color[]=new String[9];
 color[0] = "#ffffdd";
@@ -50,7 +55,7 @@ String url="jdbc:mysql://localhost:3306/weeklyreport?useUnicode=true&characterEn
 String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
-String sql="select * from work where name = '" +person+"' order by entryDate desc";
+String sql="select * from work where name = '" + person + "' order by entryDate desc";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
 int j=0;
@@ -65,14 +70,14 @@ while(rs.next()){
 	<td bgcolor=<%=color[j]%> align=center><font color=green><b><%=person%></b></font> </td>
 	<td bgcolor=<%=color[j]%> valign=top><ol>
 	<%for(int i=0;i<=4;i++){ %>
-    <%="<li>"+rs.getString(6+i)+"</li>"%>
+    <%="<li>"+rs.getString(7+i)+"</li>"%>
     <%}%></ol> &nbsp; </td>
 	<td bgcolor=<%=color[j]%> valign=top><ol>
 	<%for(int i=0;i<=4;i++){%>
-	<%="<li>【<font color='red'>" + rs.getString(16+i) + "</font>】" + rs.getString(11+i)%> 
+	<%="<li>【<font color='red'>" + rs.getString(17+i) + "</font>】" + rs.getString(12+i)%> 
 	<%}%></ol>&nbsp;</td>
 	<td bgcolor=<%=color[j]%> valign=top><%=rs.getString(22)%>&nbsp;</td>
-	<td bgcolor=<%=color[j]%> valign=top><%=rs.getString(4)%><br><%=rs.getString(5)%> &nbsp; </td>
+	<td bgcolor=<%=color[j]%> valign=top><%=rs.getString(5)%><br><%=rs.getString(6)%> &nbsp; </td>
 	<%}%></tr>
 	</table>
 	</body>

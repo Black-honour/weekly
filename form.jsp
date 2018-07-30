@@ -5,11 +5,14 @@
 <!DOCTYPE HTML >
 <html>
   <head>
-  <%String person=request.getParameter("person");%>
-    <title>登陆<%=person%>本周的工作记录</title>
+<meta http-equiv="content-Type" content="text/html;charset=utf-8">
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">   
+<meta http-equiv="expires" content="0"> 
+
+<%request.setCharacterEncoding("UTF-8");%>  
+<%String person=request.getParameter("person");%>
+    <title>登陆<%=person%>本周的工作记录</title>  
 
 <style>
         h2 {text-align:center;}
@@ -22,7 +25,7 @@
 <body>
 <h2>登陆<font color="green"><%=person%></font>本周的工作记录</h2>
 
-<div style="text-align:center">[<a href="listEachPerson.jsp?person='<%=person%>'"><%=person%>的所有登录资料</a>][<a href=default.jsp>回到主选单</a>]</div>
+<div style="text-align:center">[<a href="listEachPerson.jsp?person=<%=person%>"><%=person%>的所有登录资料</a>][<a href=default.jsp>回到主选单</a>]</div>
 
 <form method=post action="register.jsp">
 <table style="text-align:center;margin:auto" border=1>
@@ -57,13 +60,6 @@ String thisDate[]=new String[5];
 String prevTask[]=new String[5];
 String prevDate[]=new String[5];
 
-String finishedKey=" ";
-String thisTaskKey=" ";
-String thisDateKey=" ";
-String prevTaskKey=" ";
-String prevDateKey=" ";
-String summaryKey=new String("summary");
-
 int i;
 //连接mysql数据库
 Class.forName("com.mysql.cj.jdbc.Driver");
@@ -72,53 +68,56 @@ String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
 //定义所需的sql语句，并执行
-String sql="select *from (select @rownum:=@rownum+1 as rownum,s_Generation, id, s_GUID, name, entryDate, entryTime,finished0,finished1, finished2, finished3, finished4, thisTask0,thisTask1, thisTask2, thisTask3,thisTask4,thisDate0,thisDate1,thisDate2,thisDate3,thisDate4,summary from work,(select @rownum:=0)t order by entryDate)b where rownum = '1' and name='"+person+"'";
+String sql="select *from (select @rownum:=@rownum+1 as rownum, s_Generation, id, s_GUID, name, entryDate, entryTime, finished0, finished1, finished2, finished3, finished4, thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, thisDate0, thisDate1, thisDate2, thisDate3, thisDate4, summary from work, (select @rownum:=0)t order by entryDate)b where rownum = '1' and name = '" + person + "' ";
 PreparedStatement pstmt=conn.prepareStatement(sql);
 ResultSet rs=pstmt.executeQuery();
+java.util.Date date =new java.util.Date();
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+String dateString=sdf.format(date);
+java.util.Date newdate=sdf.parse(dateString);
 
 String LastEntryDate;
 while(rs.next()){
-	LastEntryDate=rs.getString(5);
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	LastEntryDate=rs.getString(6);
 	java.util.Date LastentryDate=sdf.parse(LastEntryDate);
-	if(sameweek(new java.util.Date(),LastentryDate)){
-		finished[0]=rs.getString(7);
-		finished[1]=rs.getString(8);
-		finished[2]=rs.getString(9);
-		finished[3]=rs.getString(10);
-		finished[4]=rs.getString(11);
-		thisTask[0]=rs.getString(12);
-		thisTask[1]=rs.getString(13);
-		thisTask[2]=rs.getString(14);
-		thisTask[3]=rs.getString(15);
-		thisTask[4]=rs.getString(16);
-		thisDate[0]=rs.getString(17);
-		thisDate[1]=rs.getString(18);
-		thisDate[2]=rs.getString(19);
-		thisDate[3]=rs.getString(20);
-		thisDate[4]=rs.getString(21);
-		summary=rs.getString(22);
+	if(sameweek(newdate,LastentryDate)){
+		finished[0]=rs.getString(8);
+		finished[1]=rs.getString(9);
+		finished[2]=rs.getString(10);
+		finished[3]=rs.getString(11);
+		finished[4]=rs.getString(12);
+		thisTask[0]=rs.getString(13);
+		thisTask[1]=rs.getString(14);
+		thisTask[2]=rs.getString(15);
+		thisTask[3]=rs.getString(16);
+		thisTask[4]=rs.getString(17);
+		thisDate[0]=rs.getString(18);
+		thisDate[1]=rs.getString(19);
+		thisDate[2]=rs.getString(20);
+		thisDate[3]=rs.getString(21);
+		thisDate[4]=rs.getString(22);
+		summary=rs.getString(23);
 		
-		session.setAttribute(finishedKey,finished);
-		session.setAttribute(thisTaskKey,thisTask);
-		session.setAttribute(thisDateKey,thisDate);
+		session.setAttribute("finishedKey",finished);
+		session.setAttribute("thisTaskKey",thisTask);
+		session.setAttribute("thisDateKey",thisDate);
 
-		session.setAttribute(summaryKey, summary);
+		session.setAttribute("summaryKey", summary);
 	}
 	else{
-		prevTask[0]=rs.getString(12);
-		prevTask[1]=rs.getString(13);
-		prevTask[2]=rs.getString(14);
-		prevTask[3]=rs.getString(15);
-		prevTask[4]=rs.getString(16);
-		prevDate[0]=rs.getString(17);
-		prevDate[1]=rs.getString(18);
-		prevDate[2]=rs.getString(19);
-		prevDate[3]=rs.getString(20);
-		prevDate[4]=rs.getString(21);
+		prevTask[0]=rs.getString(13);
+		prevTask[1]=rs.getString(14);
+		prevTask[2]=rs.getString(15);
+		prevTask[3]=rs.getString(16);
+		prevTask[4]=rs.getString(17);
+		prevDate[0]=rs.getString(18);
+		prevDate[1]=rs.getString(19);
+		prevDate[2]=rs.getString(20);
+		prevDate[3]=rs.getString(21);
+		prevDate[4]=rs.getString(22);
 		
-		session.setAttribute(prevTaskKey,prevTask);
-		session.setAttribute(prevDateKey,prevTask);
+		session.setAttribute("prevTaskKey",prevTask);
+		session.setAttribute("prevDateKey",prevDate);
 
 	}
 	for(i=0;i<5;i++){
@@ -147,7 +146,7 @@ while(rs.next()){
 <hr>
 <div style="text-align:center">
 [<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
-[<a target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
+[<a target=_blank href="listAllPersonLastRecord.jsp">每位同学的最後一笔资料</a>]
 </div>
 </body>
 </html>
