@@ -68,9 +68,12 @@ String username="root";
 String password="123456";
 Connection conn=DriverManager.getConnection(url,username,password);
 //定义所需的sql语句，并执行
-String sql="select *from (select @rownum:=@rownum+1 as rownum, s_Generation, id, s_GUID, name, entryDate, entryTime, finished0, finished1, finished2, finished3, finished4, thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, thisDate0, thisDate1, thisDate2, thisDate3, thisDate4, summary from work, (select @rownum:=0)t order by entryDate)b where rownum = '1' and name = '" + person + "' ";
+String sql="select *from (select @rownum:=@rownum+1 as rownum, s_Generation, id, s_GUID, name, entryDate, entryTime, finished0, finished1, finished2, finished3, finished4, thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, thisDate0, thisDate1, thisDate2, thisDate3, thisDate4, summary from work, (select @rownum:=0)t where name = '" + person + "' order by entryDate desc)b where rownum = '1'";
+String sql_2="select *from (select @rownum:=@rownum+1 as rownum, s_Generation, id, s_GUID, name, entryDate, entryTime, finished0, finished1, finished2, finished3, finished4, thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, thisDate0, thisDate1, thisDate2, thisDate3, thisDate4, summary from work, (select @rownum:=0)t where name = '" + person + "' order by entryDate desc)b where rownum = '2'";
 PreparedStatement pstmt=conn.prepareStatement(sql);
+PreparedStatement pstmt_2=conn.prepareStatement(sql_2);
 ResultSet rs=pstmt.executeQuery();
+ResultSet rs_2=pstmt_2.executeQuery();
 java.util.Date date =new java.util.Date();
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 String dateString=sdf.format(date);
@@ -80,6 +83,7 @@ String LastEntryDate;
 while(rs.next()){
 	LastEntryDate=rs.getString(6);
 	java.util.Date LastentryDate=sdf.parse(LastEntryDate);
+	
 	if(sameweek(newdate,LastentryDate)){
 		finished[0]=rs.getString(8);
 		finished[1]=rs.getString(9);
@@ -101,8 +105,23 @@ while(rs.next()){
 		session.setAttribute("finishedKey",finished);
 		session.setAttribute("thisTaskKey",thisTask);
 		session.setAttribute("thisDateKey",thisDate);
-
 		session.setAttribute("summaryKey", summary);
+		
+		if(rs_2.next()){
+			prevTask[0]=rs_2.getString(13);
+			prevTask[1]=rs_2.getString(14);
+			prevTask[2]=rs_2.getString(15);
+			prevTask[3]=rs_2.getString(16);
+			prevTask[4]=rs_2.getString(17);
+			prevDate[0]=rs_2.getString(18);
+			prevDate[1]=rs_2.getString(19);
+			prevDate[2]=rs_2.getString(20);
+			prevDate[3]=rs_2.getString(21);
+			prevDate[4]=rs_2.getString(22);
+			
+			session.setAttribute("prevTaskKey",prevTask);
+			session.setAttribute("prevDateKey",prevDate);
+		}
 	}
 	else{
 		prevTask[0]=rs.getString(13);
