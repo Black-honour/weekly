@@ -10,6 +10,7 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">   
   <%request.setCharacterEncoding("UTF-8");%> 
+  
   <% String person=request.getParameter("person"); %>
   <% String password=request.getParameter("password");%>
   <title><%=person%>工作进度登录表</title>
@@ -60,15 +61,23 @@ public boolean sameweek(java.util.Date date1,java.util.Date date2){
 //检查资料，确认是修改或是新增
 int insertNewData=1;
 int recordId=-1;
-String sql_new="select *from work where entryDate =(select max(entryDate) from work)and name='"+person+"'";
+String Lastentry= "";
+String time="";
+
+String sql_new="select *from (select @rownum:=@rownum+1 as rownum, s_Generation, id, s_GUID, name, entryDate, entryTime, finished0, finished1, finished2, finished3, finished4, thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, thisDate0, thisDate1, thisDate2, thisDate3, thisDate4, summary from work, (select @rownum:=0)t where name = '" + person + "' order by entryDate desc)b where rownum = '1'";
 PreparedStatement pstmt_new=conn.prepareStatement(sql_new);
 ResultSet rs_first=pstmt_new.executeQuery();
+
 java.util.Date dt =new java.util.Date();
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+SimpleDateFormat sdftime = new SimpleDateFormat("HH-mm-ss");
 String dateString=sdf.format(dt);
+String timeString = sdftime.format(dt);
 java.util.Date newdate=sdf.parse(dateString);
+
 if (rs.next()){	// 找到最後一笔资料
-	String Lastentry=rs.getString(4);
+	Lastentry=rs.getString(6);
+    time=rs.getString(7);
 	java.util.Date LastentryDate=sdf.parse(Lastentry);
 	if(sameweek(dt, LastentryDate)){		//若和目前时间在同一个星期
 		insertNewData=0;
@@ -85,10 +94,6 @@ String passwordWork="123456";
 Connection connWork=DriverManager.getConnection(urlWork,userName,passwordWork);
 
 String sql;
-java.util.Date date=new java.util.Date();
-long datetime=date.getTime();
-int t=(int)datetime;
-String time=Integer.toString(t);
 
 if(insertNewData==1){//增加新的数据
 	sql = "insert into work (name, entryDate, entryTime, summary, ";
@@ -96,8 +101,8 @@ if(insertNewData==1){//增加新的数据
 	sql = sql + "thisTask0, thisTask1, thisTask2, thisTask3, thisTask4, ";
 	sql = sql +"thisDate0, thisDate1, thisDate2, thisDate3, thisDate4) values ('";
 	sql = sql + person + "', '";
-	sql = sql +new java.util.Date().toString() + "', '";
-	sql = sql + time + "', '";
+	sql = sql + dateString+"', '";
+	sql = sql + timeString + "', '";
 	sql = sql + request.getParameter("summary") + "', '";
 	sql = sql + request.getParameter("finished[0]") + "', '" + request.getParameter("finished[1]") + "', '" + request.getParameter("finished[2]") + "', '" + request.getParameter("finished[3]") + "', '" + request.getParameter("finished[4]") + "', '";
 	sql = sql + request.getParameter("thisTask[0]") + "', '" + request.getParameter("thisTask[1]") + "', '" + request.getParameter("thisTask[2]") + "', '" + request.getParameter("thisTask[3]") + "', '" + request.getParameter("thisTask[4]") + "', '";
@@ -121,7 +126,7 @@ else{//更新数据
 	sql = sql + " thisDate3='" + request.getParameter("thisDate[3]") + "',";
 	sql = sql + " thisDate4='" + request.getParameter("thisDate[4]") + "',";
 	sql = sql + " summary='" + request.getParameter("summary") + "',";
-	sql = sql + " entryDate='" + date.toString() + "',";
+	sql = sql + " entryDate='" + Lastentry + "',";
 	sql = sql + " entryTime='" + time + "'";
 	sql = sql + " where id=" + recordId;
 }
@@ -141,13 +146,14 @@ String []uthisTask=(String[])session.getAttribute("thisTaskKey");
 
 <table style="text-align:center;margin:auto" border=1>
 <tr>
-	<th align=center>上周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述
-	<th align=center>本周完成事项
-	<th align=center>下周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述
-	<th align=center>综合说明
-	<th align=center>登录日期
-<tr>
-<%while(rsn.next()){%>
+	<th align=center>上周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述</th>
+	<th align=center>本周完成事项</th>
+	<th align=center>下周预定完成事项：<br>【<font color=red>预定完成日期</font>】工作描述</th>
+	<th align=center>综合说明</th>
+	<th align=center>登录日期</th>
+
+<%while(rsn.next()){%><tr>
+
 	<td valign=top><ol>
 	<%for(int i=0;i<=4;i++){%>
 	<%="<li>【<font color='red'>" + uthisDate[i] + "</font>】" + uthisTask[i] + "</li>"%> 
@@ -162,14 +168,12 @@ String []uthisTask=(String[])session.getAttribute("thisTaskKey");
 	<%}%></ol>&nbsp;</td>
 	<td valign=top><%=rsn.getString(22)%> &nbsp;</td>
 	<td><%=rsn.getString(5)%><br><%=rsn.getString(6)%> &nbsp; </td>
-	<%}%>
+	<%}%></tr>
 </table>
 <hr>
 <div style="text-align:center">
 [<a target=_blank href="listEachWeek.jsp?weekDiff=0">本周登录之全部资料</a>]
-[<a target=_blank href="listLastRecord.jsp">每位同学的最後一笔资料</a>]
+[<a target=_blank href="listAllPersonLastRecord.jsp">每位同学的最後一笔资料</a>]
 </div>
 </body>
 </html>
-
-
